@@ -1,0 +1,34 @@
+name: Godot Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Setup
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates
+          cp -r /root/.local/share/godot/export_templates/4.3.stable ~/.local/share/godot/export_templates/
+      - name: Build Android APK
+        run: |
+          godot --headless --export-debug "Android" builds/hearth.apk
+      - name: Build Web
+        run: |
+          godot --headless --export-debug "Web" builds/web/
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: hearth-android
+          path: builds/hearth.apk
+      - name: Upload Web
+        uses: actions/upload-artifact@v4
+        with:
+          name: hearth-web
+          path: builds/web/
